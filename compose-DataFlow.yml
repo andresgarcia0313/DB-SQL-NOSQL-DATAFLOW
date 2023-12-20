@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  nifi:
+    image: apache/nifi:1.15.3
+    ports:
+      - "8080:8080"
+    networks:
+      - mynetwork
+    volumes:
+      - nifi_data:/data
+
+  spark:
+    image: apache/spark:3.2.0
+    ports:
+      - "4040:4040"
+    networks:
+      - mynetwork
+    environment:
+      - ENABLE_INIT_DAEMON=false
+
+  superset:
+    image: apache/superset:1.3.2
+    ports:
+      - "8088:8088"
+    networks:
+      - mynetwork
+    environment:
+      - SUPERSET_CONFIG=superset_config.py
+    volumes:
+      - superset_config:/etc/superset
+    depends_on:
+      - spark
+
+networks:
+  mynetwork:
+    driver: bridge
+
+volumes:
+  nifi_data:
+  superset_config:
